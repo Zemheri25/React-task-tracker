@@ -61,6 +61,7 @@ body {
 .done {
   border-left: 10px solid rgb(102, 18, 77);
   text-decoration:line-through;
+  background-color: grey;
 }
 .task h3 {
   display: flex;

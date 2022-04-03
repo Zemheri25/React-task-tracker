@@ -1,55 +1,90 @@
 import "./App.css";
 import Header from "./components/Header";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import AddTask from "./components/AddTask";
 import Tasks from "./components/Tasks";
+import axios from "axios";
 
 function App() {
   const [ide, setIde] = useState(4)
   const [showbar, setShowbar] = useState(false);
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      text: "Study React Pre-Class Notes",
-      day: "Dec 12th at 2:30pm",
-      isDone: false,
-    },
-    {
-      id: 2,
-      text: "Feed the Dog",
-      day: "Dec 13th at 1:30pm",
-      isDone: true,
-    },
-    {
-      id: 3,
-      text: "Attend In-Class",
-      day: "Dec 14th at 3:00pm",
-      isDone: false,
-    },
-  ]);
+  const [tasks, setTasks] = useState([]);
+ 
+
+  const baseUrl = "http://localhost:5000/tasks";
+
+  //CRUD Create Read Update Delete
+
+  const getApi = async () => {
+    const response = await axios(baseUrl);
+    setTasks(response.data)
+  }
+
+  useEffect(() => {
+    getApi();
+  }, [])
+
+
 
   //DELETE TASK
-  const deleteTask = (id) => {
-    const NewTask = tasks.filter((item) => item.id !== id);
-    setTasks(NewTask);
-  };
+  // const deleteTask = (id) => {
+  //   const NewTask = tasks.filter((item) => item.id !== id);
+  //   setTasks(NewTask);
+  // };
+
+
+  const deleteTask = async (id) => {
+    const newTasks = await axios({
+      method : "DELETE",
+      url : `${baseUrl}/${id}`
+    });
+    getApi();
+  }
+
+
 
   //ADD TASK
-  const addTask = (newTask) => {
-    setIde(ide + 1)
-    const id = ide
-    const addNewTask = { id, ...newTask };
-    setTasks([...tasks, addNewTask]);
-  };
+  // const addTask = (newTask) => {
+  //   setIde(ide + 1)
+  //   const id = ide
+  //   const addNewTask = { id, ...newTask };
+  //   setTasks([...tasks, addNewTask]);
+  // };
+
+
+  const addTask = async (NewTask) => {
+    const response = await axios({
+      url : baseUrl,
+      method : "POST",
+      data : NewTask
+    });
+    getApi();
+  }
+
 
   //Toggle Done
-  const toggleDone = (toggleDoneId) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === toggleDoneId ? { ...task, isDone: !task.isDone } : task
-      )
-    );
-  };
+  // const toggleDone = (toggleDoneId) => {
+  //   setTasks(
+  //     tasks.map((task) =>
+  //       task.id === toggleDoneId ? { ...task, isDone: !task.isDone } : task
+  //     )
+  //   );
+  // };
+
+  const toggleDone = async (toggleDoneId) => {
+    const {data} = await axios(`${baseUrl}/${toggleDoneId}`);
+    console.log(data);
+    const updatedTask = {...data, isDone : !data.isDone};
+    const response = await axios({
+      url : `${baseUrl}/${toggleDoneId}`,
+      method : "PUT",
+      data : updatedTask
+    });
+    getApi();
+  }
+
+
+
 
   //Toggle Show
 
